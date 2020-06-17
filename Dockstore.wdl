@@ -7,6 +7,7 @@ input {
   File? inputNormal
   Boolean markdup = true
   String outputFileNamePrefix = ""
+  String docker = "g3chen/delly:1.0"
 }
 
 Array[File] inputBams= select_all([inputTumor,inputNormal])
@@ -15,19 +16,19 @@ String callType = if length(inputBams) == 1 then "unmatched" else "somatic"
 
 # If we see more than one (two) bams switch to somatic mode
 scatter (f in inputBams) { 
-  call dupmarkBam { input: inputBam = f, dedup = if markdup then "dedup" else "nomark"}
+  call dupmarkBam { input: inputBam = f, dedup = if markdup then "dedup" else "nomark", docker = docker}
 } 
 
 scatter (m in ["DEL", "DUP", "INV", "INS", "BND"]) {
-  call runDelly { input: inBams = dupmarkBam.outputBam, inBai = dupmarkBam.outputBai, dellyMode = m, callType = callType, sampleName = sampleID }
+  call runDelly { input: inBams = dupmarkBam.outputBam, inBai = dupmarkBam.outputBai, dellyMode = m, callType = callType, sampleName = sampleID, docker = docker }
 }
 
 # Go on with merging and zipping/indexing
-call mergeAndZip as mergeAndZipALL { input: inputVcfs = select_all(runDelly.outVcf), inputTbis = select_all(runDelly.outTbi), sampleName = sampleID, callType = callType}
+call mergeAndZip as mergeAndZipALL { input: inputVcfs = select_all(runDelly.outVcf), inputTbis = select_all(runDelly.outTbi), sampleName = sampleID, callType = callType, docker = docker}
 
 # Go on with processing somatic - filtered files
 if (callType == "somatic") {
- call mergeAndZip as mergeAndZipFiltered { input: inputVcfs = select_all(runDelly.outVcf_filtered), inputTbis = select_all(runDelly.outTbi_filtered), sampleName = sampleID, callType = callType, prefix = "_filtered"}
+ call mergeAndZip as mergeAndZipFiltered { input: inputVcfs = select_all(runDelly.outVcf_filtered), inputTbis = select_all(runDelly.outTbi_filtered), sampleName = sampleID, callType = callType, prefix = "_filtered", docker = docker}
 }
 
 parameter_meta {
@@ -35,6 +36,7 @@ parameter_meta {
   inputNormal: "Normal input .bam file."
   markdup: "A switch between marking duplicate reads and indexing with picard."
   outputFileNamePrefix: "Output prefix to be used with result files."
+  docker: "Docker container to run the workflow in"
 }
 
 meta {
@@ -94,14 +96,16 @@ input {
   Int timeout   = 20
   String dedup = "dedup"
   String modules = "java/8 picard/2.19.2"
+  String docker
 }
 
 parameter_meta {
- inputBam: "Input .bam file"
- jobMemory: "memory allocated for Job"
- dedup: "A switch between marking duplicate reads and indexing with picard"
- modules: "Names and versions of modules for picard-tools and java"
- timeout: "Timeout in hours"
+  inputBam: "Input .bam file"
+  jobMemory: "memory allocated for Job"
+  dedup: "A switch between marking duplicate reads and indexing with picard"
+  modules: "Names and versions of modules for picard-tools and java"
+  timeout: "Timeout in hours"
+  docker: "Docker container to run the workflow in"
 }
 
 command <<<
@@ -124,6 +128,7 @@ command <<<
 >>>
 
 runtime {
+  docker   "~{docker}"
   memory:  "~{jobMemory} GB"
   modules: "~{modules}"
   timeout: "~{timeout}"
@@ -145,26 +150,29 @@ input {
   String dellyMode
   String sampleName = "SAMPLE"
   String excludeList
-  String refFasta = "$HG19_ROOT/hg19_random.fa"
+  # String refFasta = "$HG19_ROOT/hg19_random.fa"
+  File refFasta
   String callType = "unmatched"
   String modules = "delly/0.8.1 bcftools/1.9 tabix/0.2.6 hg19/p13 hg19-delly/1.0"
   Int mappingQuality = 30
   Int jobMemory = 16
   Int timeout = 20
+  String docker
 }
 
 parameter_meta {
- inBams: "Input .bam files"
- inBai: "Input .bai files"
- dellyMode: "Mode specifying type of call"
- sampleName: "Normally passed from workflow block, prefix for making output files"
- excludeList: "List of regions to exclude (telomeres and centromeres)"
- refFasta: "reference assembly file"
- callType: "unmatched or somatic"
- mappingQuality: "defines quality threshold for reads to use in calling SVs"
- jobMemory: "memory allocated for Job"
- timeout: "Timeout in hours"
- modules: "Names and versions of modules for picard-tools and java"
+  inBams: "Input .bam files"
+  inBai: "Input .bai files"
+  dellyMode: "Mode specifying type of call"
+  sampleName: "Normally passed from workflow block, prefix for making output files"
+  excludeList: "List of regions to exclude (telomeres and centromeres)"
+  refFasta: "reference assembly file"
+  callType: "unmatched or somatic"
+  mappingQuality: "defines quality threshold for reads to use in calling SVs"
+  jobMemory: "memory allocated for Job"
+  timeout: "Timeout in hours"
+  modules: "Names and versions of modules for picard-tools and java"
+  docker: "Docker container to run the workflow in"
 }
 
 command <<<
@@ -195,6 +203,7 @@ fi
 >>>
 
 runtime {
+  docker:  "~{docker}"
   memory:  "~{jobMemory} GB"
   modules: "~{modules}"
   timeout: "~{timeout}"
@@ -221,16 +230,18 @@ input {
   String modules = "vcftools/0.1.16 tabix/0.2.6"
   String prefix = ""
   Int jobMemory = 10
+  String docker
 }
 
 parameter_meta {
- inputVcfs: "Input .bam files"
- inputTbis: "Input .bai files"
- sampleName: "Normally passed from workflow block, prefix for making output files"
- callType: "unmatched or somatic"
- modules: "Names and versions of modules for picard-tools and java"
- prefix: "parameter to use when we need to append _filtered to the file's name"
- jobMemory: "memory allocated for Job"
+  inputVcfs: "Input .bam files"
+  inputTbis: "Input .bai files"
+  sampleName: "Normally passed from workflow block, prefix for making output files"
+  callType: "unmatched or somatic"
+  modules: "Names and versions of modules for picard-tools and java"
+  prefix: "parameter to use when we need to append _filtered to the file's name"
+  jobMemory: "memory allocated for Job"
+  docker: "Docker container to run the workflow in"
 }
 
 
@@ -240,6 +251,7 @@ command <<<
 >>>
 
 runtime {
+  docker:  "~{docker}"
   memory:  "~{jobMemory} GB"
   modules: "~{modules}"
 }
