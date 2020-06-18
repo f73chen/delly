@@ -1,0 +1,33 @@
+# perl/5.28
+- name: perl
+  version: 5.28
+  build_type: perl
+  build_args:
+    prereq_args:
+      prereq_args:
+        md5: fbb590c305f2f88578f448581b8cf9c4
+        url: https://www.cpan.org/src/5.0/perl-5.28.1.tar.xz
+      prereq_type: download
+    prereq_type: extract
+  system_depends:
+  - name: libreadline-dev
+    permitted_os: ["Ubuntu18.04"]
+  - name: libreadline6-dev
+    permitted_os: ["Debian8.11"]
+
+# vcftools/0.1.16
+- name: vcftools
+  version: 0.1.16
+  build_type: autotools
+  build_args:
+    prereq_args:
+      prereq_args:
+        sha256: 575c13073efe65cbff6e2ab99eef12fe04536f5dc1f98de6674c848ca83cf302
+        url: https://github.com/vcftools/vcftools/archive/v0.1.16.tar.gz
+      prereq_type: download
+    prereq_type: extract
+  depends:
+    - name: perl
+      version: 5.28
+  system_depends:
+    - name: zlib1g-dev
