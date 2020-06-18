@@ -3,5 +3,6 @@
   "delly.outputFileNamePrefix": "DELLY_UNMTCHD",
   "delly.runDelly.excludeList": "/home/ubuntu/Downloads/sample_data/human.hg19.excl.tsv",
   "delly.dupmarkBam.modules": "picard/2.19.2",
-  "delly.runDelly.modules": "delly/0.8.1 bcftools/1.9 tabix/0.2.6 hg19/p13 hg19-delly/1.0"
+  "delly.runDelly.modules": "delly/0.8.1 bcftools/1.9 tabix/0.2.6 hg19/p13 hg19-delly/1.0",
+  "delly.runDelly.refFasta": "/home/ubuntu/Downloads/sample_data/hg19_random.fa"
 }
