@@ -149,7 +149,8 @@ input {
   Array[File]+ inBai
   String dellyMode
   String sampleName = "SAMPLE"
-  String excludeList
+  # String excludeList
+  File excludeList
   # String refFasta = "$HG19_ROOT/hg19_random.fa"
   File refFasta
   String callType = "unmatched"
