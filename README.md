@@ -7,6 +7,19 @@ It uses .bam files as input. The below graph describes the process:
 
 ![delly flowchart](workflow-structural-variation/docs/delly-wf.png)
 
+## Usage
+
+### Dockstore
+Make a runtime JSON template and fill in desired inputs, outputs, and other parameters
+```
+dockstore workflow convert entry2json --entry github.com/f73chen/delly/Delly:master > Dockstore.json
+vim Dockstore.json
+```
+Run locally with the Dockstore CLI
+```
+dockstore workflow launch --entry github.com/f73chen/delly/Delly:master --json Dockstore.json
+```
+
 ## Preprocessing
 
 The expected inputs for the DELLY tool are library-level BAMs with distinct insert size and median. In most cases, this means that the BAM files will not need to be merged prior to processing. However, the DELLY website recommends marking duplicate reads. We may also [optionally] realign around indels and perform base recalibration.
