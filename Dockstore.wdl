@@ -128,7 +128,7 @@ command <<<
 >>>
 
 runtime {
-  docker   "~{docker}"
+  docker:  "~{docker}"
   memory:  "~{jobMemory} GB"
   modules: "~{modules}"
   timeout: "~{timeout}"
