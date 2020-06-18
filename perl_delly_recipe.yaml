@@ -1,12 +1,12 @@
-# perl/5.28
+# perl/5.30
 - name: perl
-  version: 5.28
+  version: "5.30"
   build_type: perl
   build_args:
     prereq_args:
       prereq_args:
-        md5: fbb590c305f2f88578f448581b8cf9c4
-        url: https://www.cpan.org/src/5.0/perl-5.28.1.tar.xz
+        md5: f399f3aaee90ddcff5eadd3bccdaacc0
+        url: https://www.cpan.org/src/5.0/perl-5.30.1.tar.xz
       prereq_type: download
     prereq_type: extract
   system_depends:
@@ -14,6 +14,7 @@
     permitted_os: ["Ubuntu18.04"]
   - name: libreadline6-dev
     permitted_os: ["Debian8.11"]
+
 
 # vcftools/0.1.16
 - name: vcftools
@@ -28,6 +29,6 @@
     prereq_type: extract
   depends:
     - name: perl
-      version: 5.28
+      version: "5.30"
   system_depends:
     - name: zlib1g-dev
