@@ -6,6 +6,8 @@ task find_tools {
     command <<<
         ls -l /data/HG19_ROOT/hg19_random.fa
         echo "@@@@@@@@@@@@@"
+        ls -l /data/HG19_DELLY_ROOT/human.hg19.excl.tsv
+        echo "@@@@@@@@@@@@@"
     >>>
     output{
         String message = read_string(stdout())
